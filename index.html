@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ro">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Handwriter — web</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header><h1>Handwriter (Web)</h1><p>Calibrare personală — 3 mostre per caracter • Toate simbolurile de pe tastatură</p></header>
+  <main>
+    <section id="welcome" class="card">
+      <h2>Start</h2>
+      <p>Folosește butonul <b>Începe calibrare</b> pentru a introduce 3 mostre pentru fiecare caracter. După calibrare, mergi la <b>Scan</b> pentru a fotografia notițele. Apoi verifici textul și apeși <b>Exportă în Word</b>.</p>
+      <div class="controls">
+        <button id="btn-start-calib">Începe calibrare</button>
+        <button id="btn-scan">Scan</button>
+        <button id="btn-view-samples">Vezi mostre</button>
+        <button id="btn-clear-samples">Șterge toate mostrele</button>
+      </div>
+    </section>
+
+    <section id="calib" class="card hidden">
+      <h2>Calibrare</h2>
+      <p>Scrie pe hârtie caracterul afișat și apasă <b>Fotografiază</b>. Repetă pentru 3 mostre.</p>
+      <div id="calib-info"></div>
+      <video id="video" autoplay playsinline></video>
+      <canvas id="canvas" class="hidden"></canvas>
+      <div class="controls">
+        <button id="btn-capture">Fotografiază</button>
+        <button id="btn-next-char">Sări la următorul</button>
+        <button id="btn-done-calib">Gata</button>
+      </div>
+      <div id="calib-samples"></div>
+    </section>
+
+    <section id="scan" class="card hidden">
+      <h2>Scan</h2>
+      <p>Foto notiță — aplicația încearcă să segmenteze liniile și caracterele și va aplica corecțiile din calibrare.</p>
+      <video id="video-scan" autoplay playsinline></video>
+      <canvas id="canvas-scan" class="hidden"></canvas>
+      <div class="controls">
+        <button id="btn-capture-scan">Fotografiază notița</button>
+      </div>
+      <div id="scan-result" class="result"></div>
+    </section>
+
+    <section id="export" class="card hidden">
+      <h2>Rezultat & Export</h2>
+      <textarea id="final-text" rows="10"></textarea>
+      <div class="controls">
+        <button id="btn-export-docx">Exportă în Word (.docx)</button>
+        <button id="btn-copy">Copiază în clipboard</button>
+      </div>
+    </section>
+
+    <section id="samples-list" class="card hidden">
+      <h2>Mostre salvate</h2>
+      <div id="samples-grid"></div>
+      <div class="controls"><button id="btn-back">Înapoi</button></div>
+    </section>
+  </main>
+  <footer>Handwriter — versiune web • Datele rămân în browser (LocalStorage)</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
