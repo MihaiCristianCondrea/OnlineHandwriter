@@ -426,6 +426,11 @@ function initListeners(){
 let glassBooted = false;
 function initLiquidGlass(){
   if(glassBooted){ return; }
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(prefersReducedMotion){
+    document.documentElement.setAttribute('data-motion', 'reduced');
+    return;
+  }
   if(typeof liquidGL !== 'function' || !window.html2canvas){
     console.warn('liquidGL nu este disponibil încă.');
     return;
@@ -443,9 +448,9 @@ function initLiquidGlass(){
       shadow: true,
       specular: true,
       reveal: 'fade',
-      tilt: true,
-      tiltFactor: 4,
-      magnify: 1.02,
+      tilt: false,
+      tiltFactor: 0,
+      magnify: 1,
       on: {
         init(){
           document.querySelectorAll('.liquidGL').forEach(el => {

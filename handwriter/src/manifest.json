@@ -1,7 +1,7 @@
 {
   "name": "Handwriter Web",
   "short_name": "Handwriter",
-  "start_url": "./index.html",
+  "start_url": "./pages/index.html",
   "display": "standalone",
   "background_color": "#0b5cff",
   "theme_color": "#0b5cff",
