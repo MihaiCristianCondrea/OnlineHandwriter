@@ -1,4 +1,4 @@
-import { CHARSET, CONFIG } from './config.js';
+import { CONFIG } from './config.js';
 
 const sections = {
   WELCOME: document.getElementById('welcome'),
@@ -14,21 +14,42 @@ export const elements = {
   btnView: document.getElementById('btn-view-samples'),
   btnClear: document.getElementById('btn-clear-samples'),
   btnBack: document.getElementById('btn-back'),
+  btnInstall: document.getElementById('btn-install'),
   btnCapture: document.getElementById('btn-capture'),
   btnNext: document.getElementById('btn-next-char'),
+  btnNextUntrained: document.getElementById('btn-next-untrained'),
+  btnSkip: document.getElementById('btn-skip-char'),
+  btnUseQuick: document.getElementById('btn-use-quick'),
+  btnUseFull: document.getElementById('btn-use-full'),
   btnDone: document.getElementById('btn-done-calib'),
   btnCaptureScan: document.getElementById('btn-capture-scan'),
-  btnExportDocx: document.getElementById('btn-export-docx'),
+  btnRetake: document.getElementById('btn-retake'),
+  btnRotateLeft: document.getElementById('btn-rotate-left'),
+  btnRotateRight: document.getElementById('btn-rotate-right'),
+  btnProcessScan: document.getElementById('btn-process-scan'),
+  btnCancelEdit: document.getElementById('btn-cancel-edit'),
+  btnExportTxt: document.getElementById('btn-export-txt'),
+  btnExportMd: document.getElementById('btn-export-md'),
   btnCopy: document.getElementById('btn-copy'),
   video: document.getElementById('video'),
   videoScan: document.getElementById('video-scan'),
   canvas: document.getElementById('canvas'),
   canvasScan: document.getElementById('canvas-scan'),
+  scanLive: document.getElementById('scan-live'),
+  scanPreview: document.getElementById('scan-preview'),
   calibInfo: document.getElementById('calib-info'),
   calibSamples: document.getElementById('calib-samples'),
+  calibProgress: document.getElementById('calib-progress-bar'),
+  calibProgressText: document.getElementById('calib-progress-text'),
   samplesGrid: document.getElementById('samples-grid'),
   scanResult: document.getElementById('scan-result'),
   finalText: document.getElementById('final-text'),
+  sampleFeedback: document.getElementById('sample-feedback'),
+  sampleThumb: document.getElementById('sample-thumb'),
+  sampleQuality: document.getElementById('sample-quality'),
+  sampleWarnings: document.getElementById('sample-warnings'),
+  installHint: document.getElementById('install-hint'),
+  scanEdit: document.getElementById('scan-edit'),
 };
 
 actionSections(Object.values(sections));
@@ -43,9 +64,15 @@ function showSection(mode){
 }
 
 function renderCalib(state){
-  const ch = CHARSET[state.calibIndex];
+  const ch = state.activeCharset[state.calibIndex];
   const count = (state.samples[ch] || []).length;
-  elements.calibInfo.textContent = `Caracter ${state.calibIndex+1}/${CHARSET.length}: ${ch} — mostre: ${count}/${CONFIG.calib.perChar}`;
+  const skipped = state.skipped[ch];
+  const tag = skipped ? ' (marcat ca nefolosit)' : (count === 0 ? ' (neantrenat)' : '');
+  elements.calibInfo.textContent = `Caracter ${state.calibIndex+1}/${state.activeCharset.length}: ${ch}${tag} — mostre: ${count}/${CONFIG.calib.perChar}`;
+  const trained = state.activeCharset.filter(c => (state.samples[c]||[]).length >= CONFIG.calib.perChar || state.skipped[c]).length;
+  const pct = Math.round((trained/state.activeCharset.length)*100);
+  elements.calibProgress.style.width = `${pct}%`;
+  elements.calibProgressText.textContent = `${pct}% complet pentru setul curent (${trained}/${state.activeCharset.length})`;
   elements.calibSamples.textContent = '';
   const arr = state.samples[ch] || [];
   arr.forEach(durl => {
@@ -81,4 +108,5 @@ export function render(state){
     elements.scanResult.textContent = state.recognizedText;
     elements.finalText.value = state.recognizedText;
   }
+  elements.installHint.classList.toggle('hidden', !state.installPrompt);
 }

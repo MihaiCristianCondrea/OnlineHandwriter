@@ -22,7 +22,7 @@ export async function knnPredict(samples, feat){
       pairs.push({label, dist: sum});
     }
   }
-  if(!pairs.length) return '';
+  if(!pairs.length) return { label: '', confidence: 0 };
   pairs.sort((a,b)=>a.dist-b.dist);
   const k = Math.min(3, pairs.length);
   const votes={};
@@ -31,5 +31,8 @@ export async function knnPredict(samples, feat){
   for(const [lab,v] of Object.entries(votes)){
     if(v>bv){ best=lab; bv=v; }
   }
-  return best || pairs[0].label;
+  const bestDist = pairs[0].dist;
+  const second = pairs[1]?.dist ?? pairs[0].dist;
+  const confidence = 1 / (1 + Math.sqrt(bestDist)) * (second > 0 ? Math.min(1, Math.sqrt(second / (bestDist+1e-6))) : 1);
+  return { label: best || pairs[0].label, confidence };
 }

@@ -38,6 +38,15 @@ export function captureSquare(video){
   return canvas.toDataURL('image/png');
 }
 
+export function captureFullFrame(video){
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL('image/png');
+}
+
 function resizeFrame(video){
   const scale = CONFIG.scan.maxDim / Math.max(video.videoWidth, video.videoHeight);
   const w = Math.round(video.videoWidth * scale);
@@ -47,6 +56,18 @@ function resizeFrame(video){
   canvas.height = h;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(video, 0, 0, video.videoWidth, video.videoHeight, 0, 0, w, h);
+  return { canvas, width: w, height: h, ctx };
+}
+
+function resizeImage(img){
+  const scale = Math.min(1, CONFIG.scan.maxDim / Math.max(img.width, img.height));
+  const w = Math.round(img.width * scale);
+  const h = Math.round(img.height * scale);
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, w, h);
   return { canvas, width: w, height: h, ctx };
 }
 
@@ -62,6 +83,18 @@ function toGrayscale(imageData){
 
 export function captureBinarizedFrame(video){
   const { canvas, width, height, ctx } = resizeFrame(video);
+  const imageData = ctx.getImageData(0,0,width,height);
+  const gray = toGrayscale(imageData);
+  let sum=0; for(const v of gray) sum+=v;
+  const thr = (sum/gray.length) * CONFIG.scan.avgThrScale;
+  const bin = new Uint8ClampedArray(width*height);
+  for(let i=0;i<gray.length;i++) bin[i] = gray[i] < thr ? 1 : 0;
+  return { bin, width, height, canvas };
+}
+
+export async function binarizeImage(dataUrl){
+  const img = await dataUrlToImage(dataUrl);
+  const { canvas, width, height, ctx } = resizeImage(img);
   const imageData = ctx.getImageData(0,0,width,height);
   const gray = toGrayscale(imageData);
   let sum=0; for(const v of gray) sum+=v;
@@ -109,4 +142,48 @@ export function sliceCharacters(ranges, sourceCanvas){
     chars.push(' ');
   }
   return chars;
+}
+
+export async function evaluateQuality(dataUrl){
+  const img = await dataUrlToImage(dataUrl);
+  const size = CONFIG.calib.squareSize;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(img, 0, 0, size, size);
+  const { data } = ctx.getImageData(0,0,size,size);
+  let sum=0; let inkPixels=0; let edgeSum=0;
+  for(let y=0;y<size;y++){
+    for(let x=0;x<size;x++){
+      const idx = (y*size + x)*4;
+      const [r,g,b] = [data[idx], data[idx+1], data[idx+2]];
+      const gray = (0.299*r + 0.587*g + 0.114*b);
+      sum += gray;
+      const ink = 255 - gray;
+      if(ink > 60) inkPixels++;
+      if(x>0){
+        const prevIdx = idx-4;
+        const [pr,pg,pb] = [data[prevIdx], data[prevIdx+1], data[prevIdx+2]];
+        const pGray = (0.299*pr + 0.587*pg + 0.114*pb);
+        edgeSum += Math.abs(pGray - gray);
+      }
+      if(y>0){
+        const prevIdx = idx - size*4;
+        const [pr,pg,pb] = [data[prevIdx], data[prevIdx+1], data[prevIdx+2]];
+        const pGray = (0.299*pr + 0.587*pg + 0.114*pb);
+        edgeSum += Math.abs(pGray - gray);
+      }
+    }
+  }
+  const totalPixels = size*size;
+  const avgBright = sum / totalPixels;
+  const inkPct = (inkPixels / totalPixels) * 100;
+  const edgeAvg = edgeSum / (totalPixels*2);
+  const warnings=[];
+  if(avgBright < CONFIG.quality.brightMin) warnings.push('Imagine prea întunecată');
+  if(avgBright > CONFIG.quality.brightMax) warnings.push('Imagine prea luminoasă');
+  if(inkPct < CONFIG.quality.minInkPct) warnings.push('Caracter prea mic — puțină cerneală');
+  if(edgeAvg < CONFIG.quality.minEdgeAvg) warnings.push('Imagine neclară / mișcată');
+  return { avgBright: Math.round(avgBright), inkPct: Math.round(inkPct*10)/10, edgeAvg: Math.round(edgeAvg*10)/10, warnings };
 }
