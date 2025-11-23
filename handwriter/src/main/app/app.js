@@ -5,6 +5,9 @@ import { captureSquare, dataUrlToVector, captureFullFrame, binarizeImage, evalua
 import { knnPredict, resetCache } from '../domain/knn.js';
 import { elements, render } from '../features/ui.js';
 
+const THEME_KEY = 'handwriter-theme';
+const themeToggle = document.getElementById('btn-theme-toggle');
+
 const loaded = loadSamples();
 
 const State = {
@@ -19,6 +22,21 @@ const State = {
   scanPreview: null,
   installPrompt: null,
 };
+
+function preferredTheme(){
+  const stored = localStorage.getItem(THEME_KEY);
+  if(stored){ return stored; }
+  return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem(THEME_KEY, theme);
+  if(themeToggle){
+    themeToggle.textContent = theme === 'light' ? 'Light · Dark' : 'Dark · Light';
+    themeToggle.setAttribute('aria-label', `Comută tema (${theme === 'light' ? 'luminos' : 'întunecat'})`);
+  }
+}
 
 function setState(patch){
   Object.assign(State, patch);
@@ -397,6 +415,12 @@ function initListeners(){
       State.installPrompt.userChoice.finally(()=> setState({ installPrompt: null }));
     }
   });
+  if(themeToggle){
+    themeToggle.addEventListener('click', ()=>{
+      const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+  }
 }
 
 let glassBooted = false;
@@ -422,6 +446,13 @@ function initLiquidGlass(){
       tilt: true,
       tiltFactor: 4,
       magnify: 1.02,
+      on: {
+        init(){
+          document.querySelectorAll('.liquidGL').forEach(el => {
+            el.style.pointerEvents = 'auto';
+          });
+        }
+      }
     });
   }catch(err){
     console.warn('Nu am putut porni liquidGL', err);
@@ -429,6 +460,7 @@ function initLiquidGlass(){
 }
 
 function main(){
+  applyTheme(preferredTheme());
   initListeners();
   initCropper();
   initInstallPrompt();
