@@ -1,9 +1,9 @@
-import { CHARSET, QUICK_CHARSET, CONFIG } from './config.js';
-import { loadSamples, saveSamples, saveVector, clearVectors } from './storage.js';
-import { startCamera, stopCamera } from './camera.js';
-import { captureSquare, dataUrlToVector, captureFullFrame, binarizeImage, evaluateQuality, dataUrlToImage, segmentCharacters } from './preprocess.js';
-import { knnPredict, resetCache } from './knn.js';
-import { elements, render } from './ui.js';
+import { CHARSET, QUICK_CHARSET, CONFIG } from '../domain/config.js';
+import { loadSamples, saveSamples, saveVector, clearVectors } from '../services/storage.js';
+import { startCamera, stopCamera } from '../services/camera.js';
+import { captureSquare, dataUrlToVector, captureFullFrame, binarizeImage, evaluateQuality, dataUrlToImage, segmentCharacters } from '../domain/preprocess.js';
+import { knnPredict, resetCache } from '../domain/knn.js';
+import { elements, render } from '../features/ui.js';
 
 const loaded = loadSamples();
 

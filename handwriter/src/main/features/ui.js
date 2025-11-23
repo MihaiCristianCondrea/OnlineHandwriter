@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from '../domain/config.js';
 
 const sections = {
   WELCOME: document.getElementById('welcome'),

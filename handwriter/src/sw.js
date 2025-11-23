@@ -1,18 +1,18 @@
-const CACHE_NAME = 'handwriter-shell-v1';
+const CACHE_NAME = 'handwriter-shell-v2';
 const ASSETS = [
   './index.html',
   './manifest.json',
   './sw.js',
-  '../styles/style.css',
-  '../main/app.js',
-  '../main/camera.js',
-  '../main/config.js',
-  '../main/knn.js',
-  '../main/preprocess.js',
-  '../main/storage.js',
-  '../main/ui.js',
-  './icons/icon-192.png',
-  './icons/icon-512.png'
+  './main/styles/style.css',
+  './main/app/app.js',
+  './main/domain/config.js',
+  './main/domain/knn.js',
+  './main/domain/preprocess.js',
+  './main/services/camera.js',
+  './main/services/storage.js',
+  './main/features/ui.js',
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png'
 ];
 
 self.addEventListener('install', event => {

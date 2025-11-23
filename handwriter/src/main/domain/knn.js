@@ -1,5 +1,5 @@
 import { dataUrlToVector } from './preprocess.js';
-import { loadVector, saveVector } from './storage.js';
+import { loadVector, saveVector } from '../services/storage.js';
 
 const featureCache = new Map();
 
