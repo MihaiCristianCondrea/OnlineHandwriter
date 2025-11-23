@@ -399,12 +399,42 @@ function initListeners(){
   });
 }
 
+let glassBooted = false;
+function initLiquidGlass(){
+  if(glassBooted){ return; }
+  if(typeof liquidGL !== 'function' || !window.html2canvas){
+    console.warn('liquidGL nu este disponibil încă.');
+    return;
+  }
+  glassBooted = true;
+  try{
+    liquidGL({
+      snapshot: 'body',
+      target: '.liquidGL',
+      resolution: 1.8,
+      refraction: 0.02,
+      bevelDepth: 0.1,
+      bevelWidth: 0.18,
+      frost: 1.2,
+      shadow: true,
+      specular: true,
+      reveal: 'fade',
+      tilt: true,
+      tiltFactor: 4,
+      magnify: 1.02,
+    });
+  }catch(err){
+    console.warn('Nu am putut porni liquidGL', err);
+  }
+}
+
 function main(){
   initListeners();
   initCropper();
   initInstallPrompt();
   initVisibilityGuards();
   render(State);
+  window.addEventListener('load', () => setTimeout(initLiquidGlass, 50));
 }
 
 main();
