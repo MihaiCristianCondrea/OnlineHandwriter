@@ -1,7 +1,7 @@
 import { CHARSET, QUICK_CHARSET, CONFIG } from './config.js';
-import { loadSamples, saveSamples } from './storage.js';
+import { loadSamples, saveSamples, saveVector, clearVectors } from './storage.js';
 import { startCamera, stopCamera } from './camera.js';
-import { captureSquare, sliceCharacters, findInkRuns, dataUrlToVector, captureFullFrame, binarizeImage, evaluateQuality, dataUrlToImage } from './preprocess.js';
+import { captureSquare, dataUrlToVector, captureFullFrame, binarizeImage, evaluateQuality, dataUrlToImage, segmentCharacters } from './preprocess.js';
 import { knnPredict, resetCache } from './knn.js';
 import { elements, render } from './ui.js';
 
@@ -88,8 +88,15 @@ async function handleCaptureSample(){
     return;
   }
   const durl = captureSquare(elements.video);
+  const vec = await dataUrlToVector(durl);
+  try{
+    await saveVector(durl, vec);
+  }catch(err){
+    console.warn('Nu am putut salva vectorul în IndexedDB', err);
+  }
   const quality = await evaluateQuality(durl);
-  const updated = { ...State.samples, [ch]: [...existing, durl] };
+  const sample = { durl, vec };
+  const updated = { ...State.samples, [ch]: [...existing, sample] };
   persistSamples(updated, State.skipped);
   setState({ samples: updated, latestSample: { ch, durl, quality } });
 }
@@ -108,9 +115,10 @@ function handleDoneCalib(){
   setState({ mode: 'WELCOME' });
 }
 
-function handleClearSamples(){
+async function handleClearSamples(){
   if(confirm('Ștergi toate mostrele salvate?')){
     resetCache();
+    try{ await clearVectors(); }catch(err){ console.warn('Nu am curățat IndexedDB', err); }
     persistSamples({}, {});
     setState({ samples: {}, skipped: {}, latestSample: null });
     alert('Mostre șterse');
@@ -122,12 +130,13 @@ async function recognizeChars(chars){
   for(const durl of chars){
     if(durl === ' '){ outputs.push(' '); continue; }
     const feat = await dataUrlToVector(durl);
-    const pred = await knnPredict(State.samples, feat);
+    const pred = await knnPredict(feat, State.samples);
     const label = pred.label || '?';
-    outputs.push(label);
+    const best = pred.confidence >= 0.6 ? label : '?';
+    outputs.push(best);
     const hasTraining = (State.samples[label] || []).length > 0;
-    if(!pred.label || pred.confidence < 0.45 || !hasTraining){
-      low.push(label);
+    if(!pred.label || pred.confidence < 0.6 || !hasTraining){
+      low.push(label || '?');
     }
   }
   return { text: outputs.join('').replace(/\s+/g,' ').trim(), lowConfidence: low };
@@ -166,8 +175,7 @@ async function processScanPreview(){
   ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
   const croppedUrl = canvas.toDataURL('image/png');
   const { bin, width, height, canvas: binCanvas } = await binarizeImage(croppedUrl);
-  const ranges = findInkRuns(bin, width, height);
-  const chars = sliceCharacters(ranges, binCanvas);
+  const chars = segmentCharacters(bin, width, height, binCanvas);
   const result = await recognizeChars(chars);
   setState({ recognizedText: result.text, mode: 'EXPORT' });
   if(result.lowConfidence.length){
@@ -343,6 +351,14 @@ function initInstallPrompt(){
   }
 }
 
+function initVisibilityGuards(){
+  const halt = () => stopCurrentStream();
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden){ halt(); }
+  });
+  window.addEventListener('pagehide', halt);
+}
+
 function initListeners(){
   elements.btnStart.addEventListener('click', async ()=>{
     setState({ calibIndex: 0, activeCharset: [...QUICK_CHARSET], mode: 'CALIB' });
@@ -387,6 +403,7 @@ function main(){
   initListeners();
   initCropper();
   initInstallPrompt();
+  initVisibilityGuards();
   render(State);
 }
 

@@ -77,7 +77,7 @@ function renderCalib(state){
   const arr = state.samples[ch] || [];
   arr.forEach(durl => {
     const img = document.createElement('img');
-    img.src = durl;
+    img.src = durl.durl || durl;
     elements.calibSamples.appendChild(img);
   });
 }
@@ -93,7 +93,7 @@ function renderSamplesList(samples){
     box.appendChild(header);
     arr.forEach(durl => {
       const img = document.createElement('img');
-      img.src = durl;
+      img.src = durl.durl || durl;
       box.appendChild(img);
     });
     elements.samplesGrid.appendChild(box);
