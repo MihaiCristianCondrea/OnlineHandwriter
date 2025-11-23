@@ -1,4 +1,4 @@
-const CACHE_NAME = 'handwriter-shell-v2';
+const CACHE_NAME = 'handwriter-shell-v3';
 const ASSETS = [
   './index.html',
   './manifest.json',

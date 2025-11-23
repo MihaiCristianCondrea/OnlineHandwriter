@@ -6,107 +6,164 @@
   <title>Handwriter — web</title>
   <link rel="manifest" href="./manifest.json" />
   <link rel="stylesheet" href="./main/styles/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  />
 </head>
 <body>
-  <header>
-    <h1>Handwriter (Web)</h1>
-    <p>Calibrare mai ușoară, scan cu decupare, export sincer și experiență PWA.</p>
+  <div class="bg-blob blob-a"></div>
+  <div class="bg-blob blob-b"></div>
+  <div class="bg-blob blob-c"></div>
+
+  <header class="hero liquidGL">
+    <div class="hero__content">
+      <div class="eyebrow">PWA • OCR personal</div>
+      <h1>Handwriter (Web)</h1>
+      <p>Calibrare mai ușoară, scan cu decupare, export sincer și experiență PWA.</p>
+      <div class="hero__actions">
+        <button id="btn-start-calib" class="primary">Începe calibrare</button>
+        <button id="btn-scan" class="ghost">Scan</button>
+      </div>
+    </div>
   </header>
+
   <main>
-    <section id="welcome" class="card">
-      <h2>Start</h2>
-      <p>Folosește butonul <b>Începe calibrare</b> pentru setul rapid (A–Z, a–z, 0–9, spațiu). După calibrare mergi la <b>Scan</b> ca să fotografiezi notițele, apoi verifică textul și exportă în format text/markdown.</p>
-      <div class="controls">
-        <button id="btn-start-calib">Începe calibrare</button>
-        <button id="btn-scan">Scan</button>
-        <button id="btn-view-samples">Vezi mostre</button>
-        <button id="btn-clear-samples">Șterge toate mostrele</button>
-      </div>
-      <div id="install-hint" class="callout hidden">
-        <p><b>Instalează</b> aplicația pe ecranul de pornire pentru acces rapid.</p>
-        <button id="btn-install">Instalează</button>
-      </div>
-    </section>
-
-    <section id="calib" class="card hidden">
-      <h2>Calibrare</h2>
-      <p>Scrie pe hârtie caracterul afișat și apasă <b>Fotografiază</b>. Poți sări peste simbolurile pe care nu le folosești. Setul poate fi extins automat când apar caractere noi în scan.</p>
-      <div id="calib-info"></div>
-      <div id="calib-progress" class="progress">
-        <div id="calib-progress-bar"></div>
-      </div>
-      <div id="calib-progress-text" class="progress-text"></div>
-      <div class="controls">
-        <button id="btn-use-quick" class="secondary">Set rapid A–Z + cifre</button>
-        <button id="btn-use-full" class="secondary">Set complet tastatură</button>
-        <button id="btn-next-untrained">Următorul necalibrat</button>
-      </div>
-      <div class="video-frame">
-        <div class="guide-box"></div>
-        <video id="video" autoplay playsinline></video>
-      </div>
-      <canvas id="canvas" class="hidden"></canvas>
-      <div class="controls">
-        <button id="btn-capture">Fotografiază</button>
-        <button id="btn-next-char">Caracter următor</button>
-        <button id="btn-skip-char" class="secondary">Nu folosesc simbolul</button>
-        <button id="btn-done-calib">Gata</button>
-      </div>
-      <div id="sample-feedback" class="callout hidden">
-        <div class="thumb-wrapper"><img id="sample-thumb" alt="Previzualizare mostru" /></div>
-        <div>
-          <div id="sample-quality"></div>
-          <div id="sample-warnings" class="warn"></div>
+    <section id="welcome" class="card liquidGL">
+      <div class="card__content">
+        <div class="section-title">
+          <div class="pill">Pasul 1</div>
+          <h2>Start</h2>
         </div>
-      </div>
-      <div id="calib-samples"></div>
-    </section>
-
-    <section id="scan" class="card hidden">
-      <h2>Scan</h2>
-      <p>Foto notiță — segmentează liniile și caracterele. Poți decupa, roti și reface captura înainte de procesare.</p>
-      <div id="scan-live" class="video-frame">
-        <div class="guide-box"></div>
-        <video id="video-scan" autoplay playsinline></video>
-      </div>
-      <canvas id="canvas-scan" class="hidden"></canvas>
-      <canvas id="scan-preview" class="hidden"></canvas>
-      <div class="controls">
-        <button id="btn-capture-scan">Fotografiază notița</button>
-        <button id="btn-retake" class="secondary hidden">Refă captura</button>
-      </div>
-      <div id="scan-edit" class="hidden">
-        <p>Trage pe imagine pentru a decupa. Folosește rotirile pentru a alinia foaia.</p>
+        <p>Folosește butonul <b>Începe calibrare</b> pentru setul rapid (A–Z, a–z, 0–9, spațiu). După calibrare mergi la <b>Scan</b> ca să fotografiezi notițele, apoi verifică textul și exportă în format text/markdown.</p>
         <div class="controls">
-          <button id="btn-rotate-left" class="secondary">Rotire -90°</button>
-          <button id="btn-rotate-right" class="secondary">Rotire +90°</button>
-          <button id="btn-process-scan">Procesează text</button>
+          <button id="btn-view-samples" class="ghost">Vezi mostre</button>
+          <button id="btn-clear-samples" class="ghost danger">Șterge toate mostrele</button>
         </div>
+        <div id="install-hint" class="callout hidden">
+          <div>
+            <p><b>Instalează</b> aplicația pe ecranul de pornire pentru acces rapid.</p>
+            <small>Funcționează și offline cu ultimul cache.</small>
+          </div>
+          <button id="btn-install">Instalează</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="calib" class="card liquidGL hidden">
+      <div class="card__content">
+        <div class="section-title">
+          <div class="pill">Pasul 2</div>
+          <h2>Calibrare</h2>
+        </div>
+        <p>Scrie pe hârtie caracterul afișat și apasă <b>Fotografiază</b>. Poți sări peste simbolurile pe care nu le folosești. Setul poate fi extins automat când apar caractere noi în scan.</p>
+        <div id="calib-info" class="muted"></div>
+        <div id="calib-progress" class="progress">
+          <div id="calib-progress-bar"></div>
+        </div>
+        <div id="calib-progress-text" class="progress-text"></div>
         <div class="controls">
-          <button id="btn-cancel-edit" class="secondary">Renunță</button>
+          <button id="btn-use-quick" class="ghost">Set rapid A–Z + cifre</button>
+          <button id="btn-use-full" class="ghost">Set complet tastatură</button>
+          <button id="btn-next-untrained" class="primary">Următorul necalibrat</button>
+        </div>
+        <div class="video-frame">
+          <div class="guide-box"></div>
+          <video id="video" autoplay playsinline></video>
+        </div>
+        <canvas id="canvas" class="hidden"></canvas>
+        <div class="controls">
+          <button id="btn-capture" class="primary">Fotografiază</button>
+          <button id="btn-next-char" class="ghost">Caracter următor</button>
+          <button id="btn-skip-char" class="ghost">Nu folosesc simbolul</button>
+          <button id="btn-done-calib" class="primary">Gata</button>
+        </div>
+        <div id="sample-feedback" class="callout hidden">
+          <div class="thumb-wrapper"><img id="sample-thumb" alt="Previzualizare mostru" /></div>
+          <div>
+            <div id="sample-quality"></div>
+            <div id="sample-warnings" class="warn"></div>
+          </div>
+        </div>
+        <div id="calib-samples" class="sample-gallery"></div>
+      </div>
+    </section>
+
+    <section id="scan" class="card liquidGL hidden">
+      <div class="card__content">
+        <div class="section-title">
+          <div class="pill">Pasul 3</div>
+          <h2>Scan</h2>
+        </div>
+        <p>Foto notiță — segmentează liniile și caracterele. Poți decupa, roti și reface captura înainte de procesare.</p>
+        <div id="scan-live" class="video-frame">
+          <div class="guide-box"></div>
+          <video id="video-scan" autoplay playsinline></video>
+        </div>
+        <canvas id="canvas-scan" class="hidden"></canvas>
+        <canvas id="scan-preview" class="hidden"></canvas>
+        <div class="controls">
+          <button id="btn-capture-scan" class="primary">Fotografiază notița</button>
+          <button id="btn-retake" class="ghost hidden">Refă captura</button>
+        </div>
+        <div id="scan-edit" class="hidden">
+          <p>Trage pe imagine pentru a decupa. Folosește rotirile pentru a alinia foaia.</p>
+          <div class="controls">
+            <button id="btn-rotate-left" class="ghost">Rotire -90°</button>
+            <button id="btn-rotate-right" class="ghost">Rotire +90°</button>
+            <button id="btn-process-scan" class="primary">Procesează text</button>
+          </div>
+          <div class="controls">
+            <button id="btn-cancel-edit" class="ghost">Renunță</button>
+          </div>
+        </div>
+        <div id="scan-result" class="result"></div>
+      </div>
+    </section>
+
+    <section id="export" class="card liquidGL hidden">
+      <div class="card__content">
+        <div class="section-title">
+          <div class="pill">Pasul 4</div>
+          <h2>Rezultat & Export</h2>
+        </div>
+        <textarea id="final-text" rows="10"></textarea>
+        <div class="controls">
+          <button id="btn-export-txt" class="primary">Exportă .txt</button>
+          <button id="btn-export-md" class="ghost">Exportă .md</button>
+          <button id="btn-copy" class="ghost">Copiază în clipboard</button>
         </div>
       </div>
-      <div id="scan-result" class="result"></div>
     </section>
 
-    <section id="export" class="card hidden">
-      <h2>Rezultat & Export</h2>
-      <textarea id="final-text" rows="10"></textarea>
-      <div class="controls">
-        <button id="btn-export-txt">Exportă .txt</button>
-        <button id="btn-export-md" class="secondary">Exportă .md</button>
-        <button id="btn-copy">Copiază în clipboard</button>
+    <section id="samples-list" class="card liquidGL hidden">
+      <div class="card__content">
+        <div class="section-title">
+          <div class="pill">Bibliotecă</div>
+          <h2>Mostre salvate</h2>
+        </div>
+        <div id="samples-grid"></div>
+        <div class="controls"><button id="btn-back" class="ghost">Înapoi</button></div>
       </div>
-    </section>
-
-    <section id="samples-list" class="card hidden">
-      <h2>Mostre salvate</h2>
-      <div id="samples-grid"></div>
-      <div class="controls"><button id="btn-back">Înapoi</button></div>
     </section>
   </main>
-  <footer>Handwriter — versiune web • Datele rămân în browser (LocalStorage)</footer>
+  <footer class="liquidGL">
+    <p>Handwriter — versiune web • Datele rămân în browser (LocalStorage)</p>
+    <div class="footer-actions">
+      <span>Glass UI powered by liquidGL</span>
+    </div>
+  </footer>
 
-<script type="module" src="./main/app/app.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"
+    defer
+  ></script>
+  <script
+    src="https://cdn.jsdelivr.net/gh/naughtyduk/liquidGL@main/scripts/liquidGL.js"
+    defer
+  ></script>
+  <script type="module" src="./main/app/app.js"></script>
 </body>
 </html>
